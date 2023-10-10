@@ -5,3 +5,4 @@ jupyterlab
 ipykernel
 plotly
 beautifulsoup4
+schedule
