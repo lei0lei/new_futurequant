@@ -1,2 +1,9 @@
 # new_futurequant
-new futurequant project
+
+```
+cd spider
+```
+
+```
+python sina_future_price_crawler.py
+```
