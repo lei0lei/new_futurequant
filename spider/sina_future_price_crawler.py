@@ -15,6 +15,7 @@ import datetime,time
 from sina_utils import *
 from azure_api.future_code import get_all_future_code
 from utils.ex_dir import file_exists,make_csv_file
+all_future_code = get_all_future_code(download=False)
 
 # class last_craw_sign:
 #     def __init__(self,date,time) -> None:
@@ -25,17 +26,19 @@ from utils.ex_dir import file_exists,make_csv_file
 # last_date_second = last_craw_sign('2000-01-01',230000)
 
 def sina_future_crawler():
-    if datetime.datetime.today().weekday() == 1:
-        logging.info(f'oops, today is weekend')
-        return None
+    print(f'------------')
+    # if datetime.datetime.today().weekday() == 1:
+    #     logging.info(f'oops, today is weekend')
+    #     return None
     logging.info(f'craw in time {datetime.datetime.utcnow()}')
     # request header and endpoint
     Referer = 'https://finance.sina.com.cn/futures/quotes.shtml'
     Host = 'hq.sinajs.cn'
     code_prefix = 'nf_'
     code_str = ''
-
-    all_future_code = get_all_future_code(download=False)
+    today = str(datetime.date.today())
+    print(today)
+    # all_future_code = get_all_future_code(download=False)
     for k in all_future_code:
         code_str+=code_prefix
         code_str+=k
@@ -43,7 +46,6 @@ def sina_future_crawler():
 
     query_str = 'https://hq.sinajs.cn/?_='+str(int(time.time()*1000))+'/$list='+code_str
 
-    today = str(datetime.date.today())
     # check csv file exists
     csv_file = future_csv_path(today)
     if file_exists(csv_file):
