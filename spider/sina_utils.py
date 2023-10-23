@@ -24,3 +24,10 @@ SHFEmkt=['FU','SC','AL','RU','ZN','CU','AU','RB','WR','PB','AG','BU','HC','SN','
 
 def future_csv_path(date):
     return os.path.join('../dataset/daily_data',date+'.csv')
+
+
+def future_daily_price_path(code):
+    return os.path.join('../dataset/daily_future_price_data',str(code)+'.csv')
+
+def commodity_daily_price_path(code):
+    return os.path.join('../dataset/daily_commodity_price_data',str(code)+'.csv')
