@@ -1,6 +1,6 @@
 import datetime
 import logging
-import azure.functions as func
+# import azure.functions as func
 
 import requests
 import os
@@ -9,6 +9,20 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from tqdm import trange
 import pymongo
+
+import requests
+import pandas as pd
+import sys
+sys.path.insert(1, '..')
+import csv
+
+import schedule
+import datetime,time
+from sina_utils import *
+from azure_api.future_code import get_all_future_code
+from utils.ex_dir import file_exists,make_csv_file
+all_future_code = get_all_future_code(download=False)
+
 
 # import os
 
@@ -27,7 +41,7 @@ COSMOS_CONNECTION_STRING = 'mongodb://lei:jDa0YcHR5WpGRQUaCsK5ZzObqJpjbiEwYF4S8F
 client = pymongo.MongoClient(COSMOS_CONNECTION_STRING)
 DCEdb = client[DCE_DB_NAME]
 
-date =  datetime.date.today()-datetime.timedelta(days=1)
+date =  datetime.date(2023,10,20)-datetime.timedelta(days=300)
 
 # app = func.FunctionApp()
 
@@ -72,7 +86,10 @@ def run():
             # print(a[0].shape[0])
             for index,row in a[0].iterrows():
                 # print(row)
-                if index>=1 and index<=5:
+                if index == 0:
+                    continue
+                if index>=1 and index<=30:
+                # if index>=1:
                     # pass
                     # if DCE_future_daily_collection.find_one({'$and':[{'date':row[0]},{'future_code':code}]}):
                     # continue
@@ -86,10 +103,21 @@ def run():
                                         'low':float(row[4]),
                                         'deal':int(row[5]),
                                         'categoryID':str(datetime.date.today())})
+                    print(f'x')
                 else:
+                    print(f'z')
                     break
         if len(blanklist)==0:
             continue
+        csv_path = future_daily_price_path(blanklist[0]['future_code'])
+        keys = blanklist[0].keys()
+        if not file_exists(csv_path):
+            with open(csv_path, 'a', newline='',encoding="utf-8") as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+        with open(csv_path, 'a', newline='',encoding="utf-8") as output_file:
+            w = csv.DictWriter(output_file,keys)
+            w.writerows(blanklist)
         # DCE_future_daily_collection.insert_many(blanklist)
         logging.info(f'{code} daily info add to db DailyFutureDb')
 def get_future_code():

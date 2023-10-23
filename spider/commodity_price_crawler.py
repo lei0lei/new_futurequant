@@ -196,7 +196,7 @@ def run():
                 'main_cf_basis_percent':round((float(row[1])-float(row[6]))/float(row[1]),4),
                 'categoryID':str(date)
             }
-            print(to_insert_item)
+            # print(to_insert_item)
             csv_path = commodity_daily_price_path(to_insert_item['commodity_code'])
             keys = to_insert_item.keys()
             if not file_exists(csv_path):
