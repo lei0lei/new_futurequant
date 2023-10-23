@@ -6,3 +6,4 @@ ipykernel
 plotly
 beautifulsoup4
 schedule
+tqdm
