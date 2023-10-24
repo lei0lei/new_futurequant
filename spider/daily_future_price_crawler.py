@@ -41,7 +41,11 @@ COSMOS_CONNECTION_STRING = 'mongodb://lei:jDa0YcHR5WpGRQUaCsK5ZzObqJpjbiEwYF4S8F
 client = pymongo.MongoClient(COSMOS_CONNECTION_STRING)
 DCEdb = client[DCE_DB_NAME]
 
+<<<<<<< HEAD
 date =  datetime.date(2023,10,20)-datetime.timedelta(days=800)
+=======
+date =  datetime.date(2023,10,20)-datetime.timedelta(days=300)
+>>>>>>> 0e6236cdfed65163853408b39773631726a9d9ec
 
 # app = func.FunctionApp()
 
@@ -68,7 +72,11 @@ def run():
     codes = get_future_code()
     for code in codes:
         blanklist = []
+<<<<<<< HEAD
         for p in range(30):
+=======
+        for p in range(1):
+>>>>>>> 0e6236cdfed65163853408b39773631726a9d9ec
             
             page_url = f'https://vip.stock.finance.sina.com.cn/q/view/vFutures_History.php?page='+str(p+1)+'&breed='+code+'&type=inner&start='+start+'&end='+end
             # page_url = f'https://vip.stock.finance.sina.com.cn/q/view/vFutures_History.php?page=1&breed=C2111&type=inner&start=20230920&end=20230920'
@@ -88,7 +96,11 @@ def run():
                 # print(row)
                 if index == 0:
                     continue
+<<<<<<< HEAD
                 if index>=1:
+=======
+                if index>=1 and index<=30:
+>>>>>>> 0e6236cdfed65163853408b39773631726a9d9ec
                 # if index>=1:
                     # pass
                     # if DCE_future_daily_collection.find_one({'$and':[{'date':row[0]},{'future_code':code}]}):
