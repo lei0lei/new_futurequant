@@ -11,6 +11,12 @@ import sys
 sys.path.insert(1, '..')
 
 import plotly
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+# To plot the result
+plot = True
+
 
 def generate_dates(start_date, end_date):
 	"""Generate a list of dates between start_date and end_date (inclusive)."""
@@ -89,6 +95,14 @@ def check_daily_kdj(daily_prices, codes, tor = 1):
 	selected_code = []
 	print(f'x-x-x-x-x')
 	print(daily_prices)
+
+	# fig = go.Figure(go.Candlestick(x=daily_prices.index,
+	# open=daily_prices['open'],
+	# high=daily_prices['high'],
+	# low=daily_prices['low'],
+	# close=daily_prices['close']))
+	# fig.show()
+
 	for code in codes:
 		sub_df = daily_prices[daily_prices["future_code"] == code]
 		print(sub_df)
@@ -104,13 +118,53 @@ def check_daily_kdj(daily_prices, codes, tor = 1):
 
 	return selected_code
 
+def draw_candle_kdj_macd_volumes(daily_prices,code,K,D,J):
+	# fig = go.Figure()
+	fig = make_subplots(rows=2, cols=1, shared_xaxes=True)
+	# 蜡烛图
+	print(daily_prices)
+	fig.add_trace(go.Candlestick(name='candle',x=daily_prices.date,
+				open=daily_prices['open'],
+				high=daily_prices['high'],
+				low=daily_prices['low'],
+				close=daily_prices['close']), row=1, col=1)
+	# KDJt图
+	fig.add_trace(go.Scatter(name='K',x=daily_prices.date,
+                         y=K,
+                         line=dict(color='black', width=2)
+                        ), row=2, col=1)
+	fig.add_trace(go.Scatter(name='D',x=daily_prices.date,
+                         y=D,
+                         line=dict(color='blue', width=1)
+                        ), row=2, col=1)
+	fig.add_trace(go.Scatter(name='J',x=daily_prices.date,
+                         y=J,
+                         line=dict(color='red', width=1)
+                        ), row=2, col=1)
+	# 去除空日期
+	# build complete timeline from start date to end date
+	dt_all = pd.date_range(start=daily_prices.date.iloc[0],end=daily_prices.date.iloc[-1])
+	# retrieve the dates that ARE in the original datset
+	dt_obs = [d.strftime("%Y-%m-%d") for d in pd.to_datetime(daily_prices.date)]
+	# define dates with missing values
+	dt_breaks = [d for d in dt_all.strftime("%Y-%m-%d").tolist() if not d in dt_obs]
+	fig.update_layout(title=f"{code}")
+	fig.update_layout(height=900, width=1200,
+                  showlegend=True,
+                  xaxis_rangeslider_visible=False,
+                  xaxis_rangebreaks=[dict(values=dt_breaks)])
+	fig.update_yaxes(title_text="candle", row=1, col=1)
+	fig.update_yaxes(title_text="KDJ", row=2, col=1)
+	fig.show()
+
 
 
 def _check_daily_kdj(daily_prices, code, tor = 1):
 	selected_code = []
 	print(f'x-x-x-x-x')
+	daily_prices = daily_prices.reset_index(drop=True)
 	print(daily_prices)
-	
+
 	# sub_df.to_csv("./sub_df.csv", index=False, encoding="gbk")	
 	close, high, low = daily_prices['close'], daily_prices['high'], daily_prices['low']
 	K, D, J = KDJ(close, high, low)
@@ -119,6 +173,7 @@ def _check_daily_kdj(daily_prices, code, tor = 1):
 		_, res = check_cross(K, D)
 
 		if res == "gold":
+			draw_candle_kdj_macd_volumes(daily_prices,code,K,D,J)
 			return True
 		else:
 			return False
@@ -324,7 +379,7 @@ def main():
 	parser.add_argument("--daily_commodity_price_data", default = "dataset/daily_commodity_price_data", type=str, help="daily_commodity_price_data folder")
 	parser.add_argument("--daily_future_price_data", default = "dataset/daily_future_price_data", type=str, help="daily_future_price_data folder")
 	parser.add_argument("--daily", default = "dataset/daily_data_1", type=str, help="daily price folder")
-	parser.add_argument("--daily", default = False, type=bool, help="plot algo result")
+	parser.add_argument("--plot", default = False, type=bool, help="plot algo result")
 	
 	args = parser.parse_args()
 
@@ -335,7 +390,7 @@ def main():
 	today_date = date.today()
 	today_string = today_date.strftime('%Y-%m-%d')  # 格式为 YYYY-MM-DD
 	
-	today_string = "2023-09-28" 
+	today_string = "2023-10-26" 
 
 	results = get_name_list(end_date_string = today_string,\
 		daily_commodity_price_folder = daily_commodity_price_folder, \

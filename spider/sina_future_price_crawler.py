@@ -17,13 +17,7 @@ from azure_api.future_code import get_all_future_code
 from utils.ex_dir import file_exists,make_csv_file
 all_future_code = get_all_future_code(download=False)
 
-# class last_craw_sign:
-#     def __init__(self,date,time) -> None:
-#         last_date = date
-#         last_time = time
 
-# # remember last time craw
-# last_date_second = last_craw_sign('2000-01-01',230000)
 out_dir = '../dataset/daily_data_1'
 def sina_future_crawler():
     print(f'------------')
@@ -65,6 +59,8 @@ def sina_future_crawler():
     # write future price to csv file every 5 minutes
     to_insert_items = []
     for i in ft:
+        if int(items[1]) < 90000 or 112900<int(items[1])<120000 or  145900<int(items[1])<170000 or int(items[1])>225900:
+            continue
         to_insert_item = {}
         
         to_insert_item['future_code'] = i.split('=')[0]
