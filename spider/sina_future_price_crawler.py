@@ -24,12 +24,12 @@ all_future_code = get_all_future_code(download=False)
 
 # # remember last time craw
 # last_date_second = last_craw_sign('2000-01-01',230000)
-
+out_dir = '../dataset/daily_data_1'
 def sina_future_crawler():
     print(f'------------')
-    # if datetime.datetime.today().weekday() == 1:
-    #     logging.info(f'oops, today is weekend')
-    #     return None
+    if datetime.datetime.today().weekday() >4:
+        logging.info(f'oops, today is weekend')
+        return None
     logging.info(f'craw in time {datetime.datetime.utcnow()}')
     # request header and endpoint
     Referer = 'https://finance.sina.com.cn/futures/quotes.shtml'
@@ -37,7 +37,11 @@ def sina_future_crawler():
     code_prefix = 'nf_'
     code_str = ''
     today = str(datetime.date.today())
+    # 新建每日存放目录
+    if not file_exists(os.path.join(out_dir,today)):
+        os.mkdir(os.path.join(out_dir,today))
     print(today)
+
     # all_future_code = get_all_future_code(download=False)
     for k in all_future_code:
         code_str+=code_prefix
@@ -104,13 +108,25 @@ def sina_future_crawler():
         to_insert_item['amount'] = float(items[14])
         to_insert_item['volume'] = float(items[13])
         to_insert_item['everage_price'] = float(items[27])
-        to_insert_items.append(to_insert_item)
-    keys = to_insert_items[0].keys()
 
-    with open(csv_file, 'a', newline='',encoding="utf-8") as output_file:
-        dict_writer = csv.DictWriter(output_file, keys)
-        dict_writer.writeheader()
-        dict_writer.writerows(to_insert_items)
+        # 写入csv
+        # keys = to_insert_item.keys()
+        if not file_exists(os.path.join(out_dir,to_insert_item['date'],to_insert_item['future_code']+'-daily.csv')):
+            with open(os.path.join(out_dir,to_insert_item['date'],to_insert_item['future_code']+'-daily.csv'), 'a', newline='',encoding="utf-8") as output_file:
+                writer = csv.writer(output_file)
+                writer.writerow(["future_code","market","future_name","clock","date","open_price","max_price","min_price","close_price","yesterday_price","buy_price","sell_price","newest_price","buy_amount","sell_amount","amount","volume","everage_price"])
+        with open(os.path.join(out_dir,to_insert_item['date'],to_insert_item['future_code']+'-daily.csv'), 'a', newline='',encoding="utf-8") as f1:
+            dict_writer = csv.DictWriter(f1, to_insert_item.keys())
+            dict_writer.writerow(to_insert_item)
+    #     to_insert_items.append(to_insert_item)
+    # keys = to_insert_items[0].keys()
+
+
+
+    # with open(csv_file, 'a', newline='',encoding="utf-8") as output_file:
+    #     dict_writer = csv.DictWriter(output_file, keys)
+    #     dict_writer.writeheader()
+    #     dict_writer.writerows(to_insert_items)
 
 # run every minute
 if __name__ == '__main__':
