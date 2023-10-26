@@ -17,6 +17,9 @@ from plotly.subplots import make_subplots
 # To plot the result
 plot = True
 
+# ta库
+from ta.trend import MACD
+from ta.momentum import StochasticOscillator
 
 def generate_dates(start_date, end_date):
 	"""Generate a list of dates between start_date and end_date (inclusive)."""
@@ -96,13 +99,6 @@ def check_daily_kdj(daily_prices, codes, tor = 1):
 	print(f'x-x-x-x-x')
 	print(daily_prices)
 
-	# fig = go.Figure(go.Candlestick(x=daily_prices.index,
-	# open=daily_prices['open'],
-	# high=daily_prices['high'],
-	# low=daily_prices['low'],
-	# close=daily_prices['close']))
-	# fig.show()
-
 	for code in codes:
 		sub_df = daily_prices[daily_prices["future_code"] == code]
 		print(sub_df)
@@ -173,7 +169,8 @@ def _check_daily_kdj(daily_prices, code, tor = 1):
 		_, res = check_cross(K, D)
 
 		if res == "gold":
-			draw_candle_kdj_macd_volumes(daily_prices,code,K,D,J)
+			if plot:
+				draw_candle_kdj_macd_volumes(daily_prices,code,K,D,J)
 			return True
 		else:
 			return False
@@ -244,12 +241,15 @@ def get_name_list(end_date_string, daily_commodity_price_folder,\
 	daily_price_folder, \
 	period = 20, period_minute = 20, threshold = 0.05):
 	end_date = datetime.strptime(end_date_string, "%Y-%m-%d")
+	# WARNING: NOT USED END_DATE_AHEAD
 	end_date_ahead = end_date - timedelta(days=1)
 	end_date_ahead_string = end_date_ahead.strftime('%Y-%m-%d')  # 格式为 YYYY-MM-DD
 
 	if is_valid_date(end_date_string):
 		"""
 			C1: 正基差过滤
+			注意: C1部分代码无法进行回溯,过滤时会默认已知截至当前的所有数据；
+				end_date更改成任何日期都不会影响这部分算法的结果。
 		"""
 		basis_codes = []
 		csv_files = glob.glob(os.path.join(daily_commodity_price_folder, '*.csv'))
@@ -258,6 +258,7 @@ def get_name_list(end_date_string, daily_commodity_price_folder,\
 		if len(csv_files) > 0:
 			for csv_file in csv_files:
 				cur_df = pd.read_csv(csv_file)
+				# 如果进行回溯，此处应该用date添加一步过滤
 				cur_df = cur_df.sort_values(by=['date', 'main_future_code'], \
 					ascending=[False, False])
 
