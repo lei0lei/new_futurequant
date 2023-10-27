@@ -119,7 +119,7 @@ def sina_future_crawler():
         if not file_exists(os.path.join(out_dir,to_insert_item['date'],to_insert_item['future_code']+'-daily.csv')):
             with open(os.path.join(out_dir,to_insert_item['date'],to_insert_item['future_code']+'-daily.csv'), 'a', newline='',encoding="utf-8") as output_file:
                 writer = csv.writer(output_file)
-                writer.writerow(["future_code","market","future_name","clock","date","open_price","max_price","min_price","close_price","yesterday_price","buy_price","sell_price","newest_price","buy_amount","sell_amount","amount","volume","everage_price"])
+                writer.writerow(["future_code","market","future_name","clock","date","categoryID","open_price","max_price","min_price","close_price","yesterday_price","buy_price","sell_price","newest_price","buy_amount","sell_amount","amount","volume","everage_price"])
         with open(os.path.join(out_dir,to_insert_item['date'],to_insert_item['future_code']+'-daily.csv'), 'a', newline='',encoding="utf-8") as f1:
             dict_writer = csv.DictWriter(f1, to_insert_item.keys())
             dict_writer.writerow(to_insert_item)

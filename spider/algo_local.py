@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(1, '..')
 import TT
 from TT import MACD,RSI,KDJ
 import pandas as pd
@@ -6,18 +8,17 @@ import time, os
 import argparse
 import glob
 import logging
-from azure_api.send_email import send_email
+from azure_api.send_email import send_email,format_messages_to_html
 logging_base_dir = f'../log/algo'
-# formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-import sys
-sys.path.insert(1, '..')
+
+from plotly.offline import plot
 
 import plotly
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 # To plot the result
-plot = True
+to_plot = True
 
 # ta库
 from ta.trend import MACD
@@ -98,8 +99,6 @@ def check_upper_ma(prices, realtime_prices, period, if_minute = False):
 
 def check_daily_kdj(daily_prices, codes, tor = 1):
 	selected_code = []
-	print(f'x-x-x-x-x')
-	print(daily_prices)
 
 	for code in codes:
 		sub_df = daily_prices[daily_prices["future_code"] == code]
@@ -126,7 +125,7 @@ def draw_candle_kdj_macd_volumes(daily_prices,code,K,D,J):
 				high=daily_prices['high'],
 				low=daily_prices['low'],
 				close=daily_prices['close']), row=1, col=1)
-	# KDJt图
+	# KDJ图
 	fig.add_trace(go.Scatter(name='K',x=daily_prices.date,
                          y=K,
                          line=dict(color='black', width=2)
@@ -155,13 +154,14 @@ def draw_candle_kdj_macd_volumes(daily_prices,code,K,D,J):
 	fig.update_yaxes(title_text="KDJ", row=2, col=1)
 	fig.show()
 
-
+	div = plot(fig,
+			output_type = 'div',
+			include_plotlyjs = False)
+	return div
 
 def _check_daily_kdj(daily_prices, code, tor = 1):
 	selected_code = []
-	print(f'x-x-x-x-x')
 	daily_prices = daily_prices.reset_index(drop=True)
-	print(daily_prices)
 
 	# sub_df.to_csv("./sub_df.csv", index=False, encoding="gbk")	
 	close, high, low = daily_prices['close'], daily_prices['high'], daily_prices['low']
@@ -171,26 +171,32 @@ def _check_daily_kdj(daily_prices, code, tor = 1):
 		_, res = check_cross(K, D)
 
 		if res == "gold":
-			if plot:
-				draw_candle_kdj_macd_volumes(daily_prices,code,K,D,J)
-			return True
+			if to_plot:
+				div=draw_candle_kdj_macd_volumes(daily_prices,code,K,D,J)
+			return True,div
 		else:
-			return False
+			return False,None
 
-
+def draw_60min_kdj():
+	pass
 
 def check_hourly_kdj(daily_prices, code, tor = 2):
+	
 	daily_prices.to_csv("./daily_prices.csv", index=False)	
 	status = False
+
+	daily_prices = daily_prices.astype({'clock':'int'})
 	daily_prices['hour'] = daily_prices['clock'] // 10000  # 将 230000 转换为 23，210000 转换为 21 等
 
 	# 根据 future_code 和每小时进行分组，并聚合
+	
 	hourly_prices = daily_prices.groupby(['future_code', 'date', 'hour']).agg({
 		'newest_price': ['last', 'max', 'min'],
 		'future_code': 'first',
 		'date': 'first',
 		'clock': 'last'
 	}).reset_index()
+
 	hourly_prices.to_csv("./hourly_df.csv", index=False, encoding="gbk")	
 
 	# 调整列名
@@ -217,19 +223,24 @@ def check_hourly_kdj(daily_prices, code, tor = 2):
 def load_minutes_data(daily_price_folder, dateslist, code, surfix = "-daily.csv", max_length = 1500):
 	# 实时数据
 	# dateslist = dateslist[::-1]
+	dateslist.sort()
+	dateslist.reverse()
+	print(dateslist)
 	df = pd.DataFrame()
 	for date in dateslist:
 		file_path = os.path.join(daily_price_folder,date,code + surfix)
-		if os.path.exists(file_path) and len(df) < max_length:
-			df_temp = pd.read_csv(file_path)
-			df = pd.concat([df, df_temp], ignore_index=True)
 
-	# print(len(df))
-	# print(df.head)
+		if os.path.exists(file_path) and len(df) < max_length:
+			df_temp = pd.read_csv(file_path,index_col=False)
+			df_temp = df_temp.drop_duplicates(subset=['date','future_code','clock'])
+			df = pd.concat([df, df_temp])
+
+
 	df = df.sort_values(by=['date', 'clock'], ascending=[True, True])
+	print(df)
 	# df.groupby('clock', group_keys=False).apply(lambda x: x.loc[x.B.idxmax()])
 	# df_60mins = df.iloc[::-1].iloc[::60].iloc[::-1]
-
+	# print(df)
 	return df
 
 
@@ -287,11 +298,13 @@ def get_name_list(end_date_string, daily_commodity_price_folder,\
 		# print(dates_list)
 		print(f'codes selected by C1')
 		print(basis_codes)
+		ignored_codes = []
+		div_list = []
 		if len(basis_codes) >0:
 			for code in basis_codes:
-				print(code)
 				if not os.path.exists(os.path.join(daily_future_price_folder,code+".csv")):
 					print(f'no history daily future price code')
+					ignored_codes.append(code)
 					continue
 				daily_price = pd.read_csv(os.path.join(daily_future_price_folder,code+".csv"))
 				# print("daily_price",daily_price.columns) # ['date', 'future_code', 'close', 'open', 'high', 'low', 'deal','categoryID']
@@ -300,11 +313,10 @@ def get_name_list(end_date_string, daily_commodity_price_folder,\
 				daily_price['date'] = pd.to_datetime(daily_price['date'], format='%Y-%m-%d').dt.strftime('%Y-%m-%d')
 
 				# extract the data in the date list
-				print(dates_list)
 				filtered_daily_data = daily_price[daily_price['date'].isin(dates_list)]
 
 				# dataframe有重复行
-				filtered_daily_data = filtered_daily_data.sort_values(by=['date'], ascending = True).drop_duplicates()
+				filtered_daily_data = filtered_daily_data.sort_values(by=['date'], ascending = True).drop_duplicates(subset=['date','future_code'])
 				# print("filtered_daily_data",filtered_daily_data.columns) # 'date', 'future_code', 'close', 'open', 'high', 'low', 'deal', 'categoryID']
 				if not os.path.exists(os.path.join(daily_price_folder,end_date_string,code+"-daily.csv")):
 					continue
@@ -318,18 +330,15 @@ def get_name_list(end_date_string, daily_commodity_price_folder,\
 				# print(df_daily_price.columns)
 
 				latest_price = df_daily_price.iloc[-1]["newest_price"]
-				print(df_daily_price)
-				print(f'xxx')
-				print(filtered_daily_data)
-				print(f'----')
-				print(df_daily_price.iloc[-1])
-				print(f'--------')
+
 				ma_value = TT.MA(filtered_daily_data["close"], period)[-1]
-				print(ma_value)
-				if ma_value< latest_price:
+
+				if ma_value < latest_price:
 					upper_20dailyma_codes.append(code)
-					if _check_daily_kdj(filtered_daily_data,code,tor = 1):
+					kdjok_code,div = _check_daily_kdj(filtered_daily_data,code,tor = 1)
+					if kdjok_code:
 						kdjdaily_codes.append(code)
+						div_list.append(div)
 			# CHANGED:
 			# if len(upper_20dailyma_codes) > 0:
 			# 	# check daily kdj
@@ -364,13 +373,14 @@ def get_name_list(end_date_string, daily_commodity_price_folder,\
 		final_results.loc[1] = ["价格高于20日均线，且日KDJ交金叉", kdjdaily_codes]
 		final_results.loc[2] = ["价格高于60分钟-20均线，且60分钟-KDJ交金叉", kdj60min_codes]
 		with open(os.path.join(logging_base_dir,end_date_string+'.txt'),'a', newline='',encoding="utf-8") as f:
-			result_message = f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} : basis_codes: {basis_codes}\n                      kdjdaily_codes: {kdjdaily_codes}\n                      kdj60min_codes: {kdj60min_codes}\n'
+			result_message = f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} : basis_codes: {basis_codes}\n                      kdjdaily_codes: {kdjdaily_codes}\n                      kdj60min_codes: {kdj60min_codes}\n                      not_found_daily_codes:  {ignored_codes}\n'
 			f.write(result_message)
 		final_results.loc[3] = ["综合结果", final_codes]
+
 		# final_results.to_csv("./final_results.csv", index=False, encoding="gbk")
 		import pprint as pp
 		pp.pprint(final_results)
-		return final_results
+		return final_results,div_list
 	else:
 		print("错误日期信息")
 		return None
@@ -396,7 +406,7 @@ def main():
 	today_date = date.today()
 	today_string = today_date.strftime('%Y-%m-%d')  # 格式为 YYYY-MM-DD
 	
-	today_string = "2023-10-26" 
+	# today_string = "2023-10-27" 
 	logging.basicConfig(level=logging.INFO,#控制台打印的日志级别
                     filename='new.log',
                     filemode='a',##模式，有w和a，w就是写模式，每次都会重新写日志，覆盖之前的日志
@@ -405,11 +415,21 @@ def main():
                     '%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'
                     #日志格式
                     )
-	results = get_name_list(end_date_string = today_string,\
+	results,div_list = get_name_list(end_date_string = today_string,\
 		daily_commodity_price_folder = daily_commodity_price_folder, \
 		daily_future_price_folder = daily_future_price_folder, \
 		daily_price_folder = daily_price_folder, \
 		period = 20, threshold = 0.05)
+
+	mail = {
+		"recipient": "lei.lei.fan.meng@gmail.com",
+        # "recipient": "lei.lei.fan.meng@gmail.com,262775891@qq.com",
+        "subject": "This is a future quant test email from lei",
+        "messages": format_messages_to_html(results,div_list)}
+
+	send_email(mail)
+
+
 
 	return results
 

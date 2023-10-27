@@ -11,7 +11,7 @@ import requests
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 from typing import List
-import pymongo
+# import pymongo
 import pandas as pd
 import lxml
 
@@ -26,7 +26,7 @@ import datetime,time
 from sina_utils import *
 from azure_api.future_code import get_all_future_code
 from utils.ex_dir import file_exists,make_csv_file
-all_future_code = get_all_future_code(download=False)
+# all_future_code = get_all_future_code(download=False)
 
 
 
@@ -142,9 +142,9 @@ def run():
     #     DCE_commodity_price_collection = DCEdb[DCE_COMMODITY_PRICE_COLLECTION_NAME]
 
     one_date = datetime.date.today()
-    one_date = datetime.date(2023,10,26)
+    one_date = datetime.date(2023,10,27)
     # date =  datetime.date.today()-datetime.timedelta(days=1)
-    date =  one_date-datetime.timedelta(days=1)
+    date =  one_date-datetime.timedelta(days=7)
     print(str(date))
     # csv_file = future_csv_path(today)
     sf_base_url = f'https://www.100ppi.com/sf/day-'

@@ -1,11 +1,14 @@
 import requests
 
 
-def format_messages_to_html(data):
+def format_messages_to_html(data,div_list):
     '''
     算法结果封装为mime形式，添加链接和字体颜色，加粗
     '''
     # print(data)
+    # div_list = []
+    # print(div_list)
+    div_list = div_list[0]
     A = data.iat[0, 1]
     B = data.iat[1, 1]
     C = data.iat[2, 1]
@@ -67,10 +70,11 @@ def format_messages_to_html(data):
                 <td>{Ds}</td>
             </tr>
             </table>
+            {div_list}
         </body>
         </html>
     """
-    messages = messages.format(As=As,Bs=Bs,Cs=Cs,Ds=Ds)
+    messages = messages.format(As=As,Bs=Bs,Cs=Cs,Ds=Ds,div_list=div_list)
     return messages
 
 
@@ -79,7 +83,7 @@ def format_messages_to_html(data):
 
 
 def send_email(mail):
-    endpoint = 'https://sendemailfutureinfo.azurewebsites.net/api/SendEmail'
+    endpoint = 'https://futurequant.azurewebsites.net/api/SendEmail'
         # {
         # "recipient": "lei.lei.fan.meng@gmail.com",
         # "subject": "This is a test email from lei",

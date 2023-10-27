@@ -8,7 +8,7 @@ import datetime
 import pandas as pd
 from bs4 import BeautifulSoup
 from tqdm import trange
-import pymongo
+# import pymongo
 
 import requests
 import pandas as pd
@@ -21,7 +21,7 @@ import datetime,time
 from sina_utils import *
 from azure_api.future_code import get_all_future_code
 from utils.ex_dir import file_exists,make_csv_file
-all_future_code = get_all_future_code(download=False)
+# all_future_code = get_all_future_code(download=False)
 
 
 # import os
@@ -32,16 +32,16 @@ all_future_code = get_all_future_code(download=False)
 # os.environ['https_proxy'] = proxy
 # os.environ['HTTPS_PROXY'] = proxy
 
-DCE_DB_NAME = "DCEdb"
-DCE_FUTURE_CODE = "DCEFutureCodeDb"
-DAILY_FUTURE_DB = 'DailyFutureDb'
+# DCE_DB_NAME = "DCEdb"
+# DCE_FUTURE_CODE = "DCEFutureCodeDb"
+# DAILY_FUTURE_DB = 'DailyFutureDb'
 
-COSMOS_CONNECTION_STRING = 'mongodb://lei:jDa0YcHR5WpGRQUaCsK5ZzObqJpjbiEwYF4S8FfbbWWMkqV1HTtVzWFkF8U0lqRXRbLZfVJtyIYoACDbqnzU3w==@lei.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@lei@'
+# COSMOS_CONNECTION_STRING = 'mongodb://lei:jDa0YcHR5WpGRQUaCsK5ZzObqJpjbiEwYF4S8FfbbWWMkqV1HTtVzWFkF8U0lqRXRbLZfVJtyIYoACDbqnzU3w==@lei.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@lei@'
 
-client = pymongo.MongoClient(COSMOS_CONNECTION_STRING)
-DCEdb = client[DCE_DB_NAME]
+# client = pymongo.MongoClient(COSMOS_CONNECTION_STRING)
+# DCEdb = client[DCE_DB_NAME]
 
-date =  datetime.date(2023,10,26)-datetime.timedelta(days=7)
+date =  datetime.date(2023,10,26)-datetime.timedelta(days=10)
 
 # app = func.FunctionApp()
 
@@ -61,11 +61,12 @@ end = str(datetime.date.today())
 
     # logging.info('Python timer trigger function ran at %s', utc_timestamp)
 # -----------------------------------------
-
+CODE_DIR = '../dataset/daily_data_1/2023-10-25'
+all_future_code = [i.split('-')[0] for i in os.listdir(CODE_DIR)]
 def run():
     # codes = get_future_code()
     # DCE_future_daily_collection = DCEdb[DAILY_FUTURE_DB]
-    codes = get_future_code()
+    codes = all_future_code
     for code in codes:
         blanklist = []
         for p in range(1):
@@ -120,9 +121,9 @@ def run():
             w.writerows(blanklist)
         # DCE_future_daily_collection.insert_many(blanklist)
         logging.info(f'{code} daily info add to db DailyFutureDb')
-def get_future_code():
-    DCE_future_code_collection = DCEdb[DCE_FUTURE_CODE]
-    return DCE_future_code_collection.find({}).sort('update_time',pymongo.DESCENDING)[0]['future_code']
+# def get_future_code():
+#     DCE_future_code_collection = DCEdb[DCE_FUTURE_CODE]
+#     return DCE_future_code_collection.find({}).sort('update_time',pymongo.DESCENDING)[0]['future_code']
     
 
 if __name__ == '__main__':
