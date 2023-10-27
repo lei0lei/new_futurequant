@@ -5,8 +5,10 @@ from datetime import datetime, timedelta, date
 import time, os
 import argparse
 import glob
-
-
+import logging
+from azure_api.send_email import send_email
+logging_base_dir = f'../log/algo'
+# formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 import sys
 sys.path.insert(1, '..')
 
@@ -361,6 +363,9 @@ def get_name_list(end_date_string, daily_commodity_price_folder,\
 		final_results.loc[0] = ["正基差", basis_codes]
 		final_results.loc[1] = ["价格高于20日均线，且日KDJ交金叉", kdjdaily_codes]
 		final_results.loc[2] = ["价格高于60分钟-20均线，且60分钟-KDJ交金叉", kdj60min_codes]
+		with open(os.path.join(logging_base_dir,end_date_string+'.txt'),'a', newline='',encoding="utf-8") as f:
+			result_message = f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} : basis_codes: {basis_codes}\n                      kdjdaily_codes: {kdjdaily_codes}\n                      kdj60min_codes: {kdj60min_codes}\n'
+			f.write(result_message)
 		final_results.loc[3] = ["综合结果", final_codes]
 		# final_results.to_csv("./final_results.csv", index=False, encoding="gbk")
 		import pprint as pp
@@ -392,7 +397,14 @@ def main():
 	today_string = today_date.strftime('%Y-%m-%d')  # 格式为 YYYY-MM-DD
 	
 	today_string = "2023-10-26" 
-
+	logging.basicConfig(level=logging.INFO,#控制台打印的日志级别
+                    filename='new.log',
+                    filemode='a',##模式，有w和a，w就是写模式，每次都会重新写日志，覆盖之前的日志
+                    #a是追加模式，默认如果不写的话，就是追加模式
+                    format=
+                    '%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'
+                    #日志格式
+                    )
 	results = get_name_list(end_date_string = today_string,\
 		daily_commodity_price_folder = daily_commodity_price_folder, \
 		daily_future_price_folder = daily_future_price_folder, \
