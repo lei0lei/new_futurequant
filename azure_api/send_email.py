@@ -1,14 +1,14 @@
 import requests
 
 
-def format_messages_to_html(data,div_list):
+def format_messages_to_html(data):
     '''
     算法结果封装为mime形式，添加链接和字体颜色，加粗
     '''
     # print(data)
     # div_list = []
     # print(div_list)
-    div_list = div_list[0]
+    # div_list = div_list[0]
     A = data.iat[0, 1]
     B = data.iat[1, 1]
     C = data.iat[2, 1]
@@ -70,11 +70,11 @@ def format_messages_to_html(data,div_list):
                 <td>{Ds}</td>
             </tr>
             </table>
-            {div_list}
+            
         </body>
         </html>
     """
-    messages = messages.format(As=As,Bs=Bs,Cs=Cs,Ds=Ds,div_list=div_list)
+    messages = messages.format(As=As,Bs=Bs,Cs=Cs,Ds=Ds)
     return messages
 
 

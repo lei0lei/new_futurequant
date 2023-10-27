@@ -18,7 +18,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 # To plot the result
-to_plot = True
+to_plot = False
 
 # ta库
 from ta.trend import MACD
@@ -154,9 +154,10 @@ def draw_candle_kdj_macd_volumes(daily_prices,code,K,D,J):
 	fig.update_yaxes(title_text="KDJ", row=2, col=1)
 	fig.show()
 
-	div = plot(fig,
-			output_type = 'div',
-			include_plotlyjs = False)
+	# div = plot(fig,
+	# 		output_type = 'div',
+	# 		include_plotlyjs = False)
+	div=''
 	return div
 
 def _check_daily_kdj(daily_prices, code, tor = 1):
@@ -173,7 +174,9 @@ def _check_daily_kdj(daily_prices, code, tor = 1):
 		if res == "gold":
 			if to_plot:
 				div=draw_candle_kdj_macd_volumes(daily_prices,code,K,D,J)
-			return True,div
+				return True,div
+			else:
+				return True,None
 		else:
 			return False,None
 
@@ -425,7 +428,7 @@ def main():
 		"recipient": "lei.lei.fan.meng@gmail.com",
         # "recipient": "lei.lei.fan.meng@gmail.com,262775891@qq.com",
         "subject": "This is a future quant test email from lei",
-        "messages": format_messages_to_html(results,div_list)}
+        "messages": format_messages_to_html(results)}
 
 	send_email(mail)
 
