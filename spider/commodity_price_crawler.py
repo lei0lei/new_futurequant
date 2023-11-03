@@ -142,9 +142,9 @@ def run():
     #     DCE_commodity_price_collection = DCEdb[DCE_COMMODITY_PRICE_COLLECTION_NAME]
 
     one_date = datetime.date.today()
-    one_date = datetime.date(2023,10,27)
+    one_date = datetime.date(2023,10,30)
     # date =  datetime.date.today()-datetime.timedelta(days=1)
-    date =  one_date-datetime.timedelta(days=7)
+    date =  one_date-datetime.timedelta(days=1)
     print(str(date))
     # csv_file = future_csv_path(today)
     sf_base_url = f'https://www.100ppi.com/sf/day-'

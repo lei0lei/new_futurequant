@@ -41,7 +41,7 @@ from utils.ex_dir import file_exists,make_csv_file
 # client = pymongo.MongoClient(COSMOS_CONNECTION_STRING)
 # DCEdb = client[DCE_DB_NAME]
 
-date =  datetime.date(2023,10,26)-datetime.timedelta(days=10)
+date =  datetime.date(2023,10,30)-datetime.timedelta(days=10)
 
 # app = func.FunctionApp()
 
