@@ -31,9 +31,9 @@ endpoint: https://futurequant.azurewebsites.net/api/SendEmail
 POST:
 
 {
-  # "recipient": "lei.lei.fan.meng@gmail.com",
-  # "subject": "This is a test email from lei",
-  # "messages": "aa"
+  "recipient": "lei.lei.fan.meng@gmail.com",
+  "subject": "This is a test email from lei",
+  "messages": "aa"
 }
 ```
 
