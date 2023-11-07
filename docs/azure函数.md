@@ -1,8 +1,8 @@
 ---
 layout: default
-title: 数据说明
-permalink: /data
-has_children: true
+title: 功能
+permalink: /func
+has_children: false
 has_toc: true
 ---
 <details open markdown="block">
@@ -13,14 +13,3 @@ has_toc: true
 1. TOC
 {:toc}
 </details>
-
-
-# 每日期货数据
-
-
-
-# 每日现货数据
-
-
-
-# 分钟期货数据
