@@ -1,0 +1,18 @@
+title: Flutter Learning
+description: 
+theme: just-the-docs
+
+url: https://lei0lei.github.io/new_futurequant-gh
+enable_copy_code_button: true
+callouts:
+  highlight:
+    title: tips
+    color: yellow
+  
+  warning:
+    title: warning
+    color: red
+
+  note:
+    title: note
+    color: blue
