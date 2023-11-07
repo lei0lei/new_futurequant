@@ -1,7 +1,7 @@
 ---
 layout: default
-title: 功能
-permalink: /func
+title: azure函数
+permalink: /azure_func
 has_children: false
 has_toc: true
 ---
