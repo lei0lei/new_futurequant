@@ -427,7 +427,7 @@ def main():
 
 	mail = {
 		# "recipient": "lei.lei.fan.meng@gmail.com",
-        "recipient": "lei.lei.fan.meng@gmail.com,262775891@qq.com,721287188@qq.com",
+        "recipient": "lei.lei.fan.meng@gmail.com,262775819@qq.com,721287188@qq.com",
         "subject": "This is a future quant test email from lei",
         "messages": format_messages_to_html(results)}
 
@@ -441,7 +441,7 @@ def schedule_every_hour():
 	return schedule.CancelJob
 if __name__ == "__main__":
 	# main()
-	schedule.every().day.at("09:00").do(schedule_every_hour)
+	schedule.every().day.at("09:02").do(schedule_every_hour)
 	while True:
 		schedule.run_pending()
 		time.sleep(1)

@@ -142,7 +142,7 @@ def run():
     #     DCE_commodity_price_collection = DCEdb[DCE_COMMODITY_PRICE_COLLECTION_NAME]
 
     one_date = datetime.date.today()
-    one_date = datetime.date(2023,10,30)
+    one_date = datetime.date(2023,11,6)
     # date =  datetime.date.today()-datetime.timedelta(days=1)
     date =  one_date-datetime.timedelta(days=1)
     print(str(date))

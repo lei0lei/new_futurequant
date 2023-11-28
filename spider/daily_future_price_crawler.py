@@ -41,7 +41,7 @@ from utils.ex_dir import file_exists,make_csv_file
 # client = pymongo.MongoClient(COSMOS_CONNECTION_STRING)
 # DCEdb = client[DCE_DB_NAME]
 
-date =  datetime.date(2023,10,30)-datetime.timedelta(days=10)
+date =  datetime.date(2023,11,6)-datetime.timedelta(days=10)
 
 # app = func.FunctionApp()
 
@@ -89,7 +89,7 @@ def run():
                 # print(row)
                 if index == 0:
                     continue
-                if index>=1 and index <= 7:
+                if index>=1 and index <= 10:
                 # if index>=1:
                     # pass
                     # if DCE_future_daily_collection.find_one({'$and':[{'date':row[0]},{'future_code':code}]}):

@@ -23,10 +23,6 @@ all_future_code = [i.split('-')[0] for i in os.listdir(CODE_DIR)]
 
 
 
-
-
-
-
 out_dir = '../dataset/daily_data_1'
 def sina_future_crawler():
     print(f'------------')
